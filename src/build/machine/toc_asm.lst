@@ -1,0 +1,48 @@
+   1               	# 1 "machine/toc_asm.S"
+   1               	.global toc_go
+   0               	
+   0               	
+   2               	.global toc_switch
+   3               	.global toc_pop_parameter
+   4               	
+   5               	        ;; Schaltet hart auf einen Task um, Rueckkehr zum
+   6               	        ;; Aufrufer ist nicht vorgesehen
+   7               	toc_go:
+   8:machine/toc_asm.S ****         mov     @r15, r1
+   9:machine/toc_asm.S ****         jmp     setupregs
+  10               	
+  11               	        ;; Schaltet zwischen zwei Prozessen um
+  12               	toc_switch:
+  13               	        ;; vom Aufgerufenen zu sichernde Register auf den Stack legen
+  14               	        .irp    reg,4,5,6,7,8,9,10,11
+  15:machine/toc_asm.S ****         push    r\reg
+  16:machine/toc_asm.S ****         .endr
+  17               	
+  18               	        ;; alten Stackpointer sichern
+  19:machine/toc_asm.S ****         mov     r1, @r15
+  20               	
+  21               	        ;; neuen Stackpointer lesen
+  22:machine/toc_asm.S ****         mov     @r14, r1
+  23               	
+  24               	setupregs:
+  25               	        ;; Register vom neuen Stack restaurieren
+  26               	        .irp    reg,11,10,9,8,7,6,5,4
+  27:machine/toc_asm.S ****         pop     r\reg
+  28:machine/toc_asm.S ****         .endr
+  29               	
+  30               	        ;; zum neuen Task zurueckkehren
+  31:machine/toc_asm.S ****         ret
+  32               	
+  33               	        ;; einen Funktionsparameter vom Stack holen und in die Zielfunktion
+  34               	        ;; springen (notwendig, da auf msp430 die ersten 4 Parameter in
+  35               	        ;; Registern uebergeben werden)
+  36               	toc_pop_parameter:
+  37:machine/toc_asm.S ****         pop     r15
+  38:machine/toc_asm.S ****         ret
+DEFINED SYMBOLS
+   machine/toc_asm.S:7      .text:0000000000000000 toc_go
+   machine/toc_asm.S:12     .text:0000000000000004 toc_switch
+   machine/toc_asm.S:36     .text:000000000000002c toc_pop_parameter
+   machine/toc_asm.S:24     .text:000000000000001a setupregs
+
+NO UNDEFINED SYMBOLS

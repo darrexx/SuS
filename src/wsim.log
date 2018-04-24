@@ -1,0 +1,45 @@
+WSim version 0.99, rev. 20110816, build Jul 11 2013
+copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011
+Citi Lab, INRIA, INSA de Lyon
+
+wsim: pid 19058
+
+================
+== wsim start ==
+================
+msp430:timerTA1: TAxEX0 with value 0x0002 not implemented
+================
+== wsim stop  ==
+================
+
+,----
+|  WSim stats:
+|  -----------
+|    simulation user time          : 4.000 s (624 ns)
+|    simulation backtracks         : 0
+|  
+|  Machine stats:
+|  --------------
+|    simulated time                : 21312350696 ns (21.312 s)
+|    simulation speedup            : 4,61
+|    machine exit with signal      : SIG_UI
+|  
+|  MCU:
+|  ----
+|    simulated mcu instructions    : 14127826
+|    simulated mcu cycles          : 29648730
+|    simulated mcu mean freq       : 1391152,50 c/s (1,39 MHz)
+|    simulation mean freq          : 6411922,58 c/s (6,41 MHz)
+|       - does not take into account sleep modes
+|    mcu exit at PC                : 0x9f04
+|    mcu exit in LPM mode          : Active mode
+|    mcu exit with IV              : 0x00000000
+|  
+|  DEVICES:
+|  --------
+|    - System Platform             :
+|    - Led display red             :
+|    - cma3000_spi                 :
+|    - scp1000 device              :
+|    - EZ430 Chronos LCD Display   :
+`----

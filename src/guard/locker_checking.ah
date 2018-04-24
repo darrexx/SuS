@@ -1,0 +1,23 @@
+#ifndef LOCKER_CHECKING_AH
+#define LOCKER_CHECKING_AH
+
+#include "device/panic.h"
+
+aspect LockerChecking {
+
+  advice execution("void Locker::enter()") : before () {
+    /* Panik, wenn "lock" schon gesetzt ist */
+    if (tjp->that()->avail() == false)
+      panic.panic(PANIC_DOUBLEENTER);
+  }
+
+  advice execution("void Locker::retne()") : before () {
+    /* Panik, wenn "lock" nicht gesetzt ist */
+    if (tjp->that()->avail() == true)
+      panic.panic(PANIC_DOUBLERETNE);
+  }
+
+};
+
+
+#endif

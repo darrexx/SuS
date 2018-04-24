@@ -1,0 +1,112 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[ngermanb]{babel}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\usepackage{listings}
+\title{Famlilienmodell -- Kurzbeschreibung}
+\author{Ralf Hackner und Christoph Borchert}
+\date{\today}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Familien-Modell}
+\subsection{Transformation des Familienmodells}
+Die Transformation des Familienmodells erfolgt durch das Skript transform.pl
+Dieses erwartet folgende Aufrufparameter:
+\begin{description}
+	\item[\texttt{-i}] (input dir) Quell-Wurzelverzeichnis
+	\item[\texttt{-o}] (output dir) Ziel-Wurzelverzeichnis
+	\item[\texttt{-a}] Zielarchitektur z.B. \texttt{\_tc}, \texttt{\_avr}
+	\item[\texttt{-f}] Zu nutzende Feature-Auswahl (durch kconf erzeugte *.conf Datei) 
+\end{description}
+\subsection{Datenstrukturen}
+
+Das Familien-Modell stellt eine Baumstruktur von Komponenten dar, deren Blätter i.d.R. die zu 
+verwaltenden Dateien sind. Die Komponenten-Hierarchie kann dabei eine beliebige
+Schachtelungstiefe annehmen. Die gesamte Struktur wird auf assoziative Perl-Hashes
+abgebildet, wobei jede Komponente durch eine eigene Hash-Map repräsentiert wird.
+Die Attribute einer Komponente werden dabei als Schlüssel-Wert-Paare dargestellt.
+Kind-Komponenten werden durch Referenzen auf die entsprechende Komponente/Hash-Map in einer Liste eingefügt.
+Eine Referenz auf diese wird dem Schlüssel \texttt{comp} (component) zugeordnet.\\
+Ein simples Familienmodell als Beispiel:
+\lstinputlisting[language=Perl,numbers=left,]{scripts/family_simple.pl}
+
+
+\subsection{Elementare Attribute}
+Neben dem bereits oben beschriebenen Attribut \texttt{comp}, gibt es eine Reihe
+grundlegender Komponenten-Attribute:
+\begin{description}
+	\item[\texttt{name}] Eindeutiger Name der Komponente. Da im gesamten 
+	System nur ein globaler Namensraum vorgesehen ist, ist darauf zu achten,
+	dass auch bei der Verwendung mehrerer Modelle
+	keine Namenskollisionen entstehen. Namenlose Komponenten sind zulässig. Es wird jedoch
+	empfohlen nur Blattknoten unbenannt zu lassen, sofern diese z.B das Attribut \texttt{file}
+	enthalten.
+	\item[\texttt{vname}] (\textbf{v}isible \textbf{name}) Ausführlicher Name 
+	der Komponente. Dient vor allem der Übersicht. Spielt keine technische
+	Rolle. Dieser Name muss nicht notwendigerweise eindeutig sein.
+	\item[\texttt{classname}] Klassenname ggF. mit  entsprechendem namespace
+	\item[\texttt{file}] Name einer der Komponente zugeordneten Datei. Der Pfad zur
+	Datei ist dabei nicht Bestandteil des Dateinamens (vgl. Pfadmechanismus). Sofern keine weiteren 
+	Attribute spezifiziert sind, die ein anderes Verhalten notwendig machen,
+	wird bei einer Transformation die Standard-Aktion auf die Datei angewendet.
+	In der Regel wird also eine Datei dieses Namens aus dem Quellverzeichnis
+	an den Zielort kopiert. Das Auffinden und Ablegen der Datei im Verzeichnisbaum
+	erfolgt durch einen gesonderten Mechanismus.
+	\item[\texttt{srcfile}] Sollte der Name der Quelldatei von dem der Zieldatei
+	abweichen, kann mit \texttt{srcfile} ein abweichender Dateiname angegeben 
+	werden.
+	\item[\texttt{files}] Analog zu \texttt{file},  jedoch wird statt eines
+	 einzelnen Namens eine Referenz auf eine Liste von Namen angegeben.
+	 Alternativ kann auch ein regulärer Ausdruck(in Perl-Syntax) als String
+	 angegeben werden (analog  zu grep -P). Berücksichtigt werden dabei alle
+	 Dateien die sich am Quellpfad der Komponente oder im korrespondierenden 
+	 architekturspezifischen Verzeichnis befinden.  
+	 Nicht mit \texttt{srcfile} kombinierbar.
+	\lstinputlisting[language=Perl]{scripts/family_files.pl}
+	oder
+	\lstinputlisting[language=Perl]{scripts/family_files_regexp.pl}
+	
+	
+\end{description}
+
+\subsection{Der Pfad-Mechanismus}
+Die Pfade der Dateien werden grundsätzlich als relativ zu einem zu spezifizierenden Wurzelverzeichnis betrachtet. Im Falle von Kopiervorgängen werden ein separates Quell- und Zielwurzelverzeichnis betrachtet. Die Pfade innerhalb dieser beiden
+Verzeichnisse werden als identisch betrachtet, sofern nichts anderes explizit angegeben ist. Sofern eine Komponente nicht selber 
+Modifikationen am Pfad vornimmt, erbt  sie den Pfad der ihrer Eltern-Komponente. Mit folgenden Attributen kann der Pfad einer Komponente beeinflusst werden:
+\begin{description}
+	\item[\texttt{dir}] Wechselt in das angegebene 
+	Verzeichnis relativ zum dem Skript übergebenen  Wurzelverzeichnis.
+	Das Wurzelverzeichnis selbst kann 
+	dabei sowohl als \texttt{'/'} oder \texttt{''} angegeben werden.
+ 	Abschließende Pfadseparatoren sind optional. 
+	\item[\texttt{subdir}] Wechselt in das angegebene Verzeichnis relativ zum Pfad der Elternkomponente
+	\item[\texttt{srcdir}] Quellpfad der Komponente bezüglich des Quellwurzelverzeichnisses, sofern dieser vom relativen Zielpfad abweicht.
+\end{description}
+
+\subsection{Von Features abhängige Komponenten}
+Über das Attribut \texttt{depends} kann die Auswahl von Komponenten
+eingeschränkt werden. Als Wert kann hier eine beliebige Perl
+-Befehlszeile (ohne abschließenden Strichpunkt) angegeben werden.
+Wird dieser zu \texttt{0} evaluiert, werden die 
+Komponente und ihre Kinder nicht ausgewählt. 
+Um Querverweise auf das Feature-Modell zu ermöglichen,
+werden über den Autoload-Mechanismus von Perl parameterlose Funktionen mit den
+Namen der Feature bereitgestellt. Diese liefern als Rückgabewert, abhängig davon
+ob das Feature ausgewählt ist, \texttt{1} oder \texttt{0} zurück.
+Da die Funktionen nicht explizit deklariert wurden, müssen sie entsprechend der
+Perl-Syntax z.B. durch ein \texttt{\&} kenntlich gemacht werden.
+
+\lstinputlisting[language=Perl]{scripts/family_depends.pl}
+
+\subsection{Generatorskripten}
+Mittels des Attributes \texttt{generate} können 
+Dateien beliebigen Inhaltes erzeugt werden. Hierzu wird ein  Perl-Ausdruck als Wert angegeben.
+Dieser wird ausgewertet, und der Rückgabewert in die Datei geschrieben.
+Alle eigenen Funktionen die dazu benötigt werden, sollten in der Datei \texttt{generators.pl}
+abgelegt werden.
+
+
+\end{document}

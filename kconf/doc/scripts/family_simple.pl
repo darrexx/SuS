@@ -1,0 +1,27 @@
+$cmp={
+	name=>'model_exaple',
+	comp=>[
+	{
+		name=>'component_A',
+		comp=>[
+		{
+			file=>'fileA.c'
+		},
+		{	
+			file=>'fileA.h'
+		}
+		]
+	},
+	{
+		name=>'component_B',
+		comp=>[
+		{
+			file=>'fileB.c'
+		},
+		{	
+			file=>'fileB.h'
+		}
+		]
+	}
+	]
+};

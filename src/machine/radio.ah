@@ -1,0 +1,24 @@
+#ifndef RADIO_AH
+#define RADIO_AH
+
+/* Aspekt zum Einbinden des Radio-Moduls */
+
+/* syscall/guarded_radio.h, da das Radio-Objekt dort deklariert ist */
+#include "syscall/guarded_radio.h"
+
+aspect ActivateRadio {
+  bool is_initialized;
+  pointcut internal() = "% %::plugin()" || "% %::prologue()" || "% %::epilogue()";
+
+  ActivateRadio() : is_initialized(false) {}
+
+  // Bei erster Benutzung initialisieren
+  advice execution("% Radio::%(...)" && !internal()) : before () {
+    if(is_initialized == false) {
+      is_initialized = true;
+      radio.plugin();
+    }
+  }
+};
+
+#endif

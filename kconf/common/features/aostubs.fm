@@ -1,0 +1,68 @@
+menu "AOStuBS Konfiguration"
+
+	menuconfig basisystem
+		bool "Basissystem"
+		default y
+		help
+			Dies ist das AOStuBS Basissystem fuer die eZ430 Chronos Watch.
+		
+		config simplicity
+			depends on basisystem
+			bool "Funkstack (Simplicity)"
+			help
+				Dieser Konfigurationspunkt umfasst den TI Simplicity Funkstack.
+				Fuer eine Drahtlose Kommunikation muss dieser Punkt ausgewaehlt werden.
+			
+		config solutions
+			depends on basisystem
+			bool "Loesungen"
+			default n
+			help
+				Musterloesungen für SuS-Aufgaben
+
+		config eclipseproject
+			depends on basisystem
+			bool "Eclipse"
+			default y
+			help
+				Basis-Eclipse-Projekt
+	
+#	menu "Sensoren"
+#		depends on basisystem
+#
+#		config scp1000
+#			bool "Temperatur + Luftdruck (SCP1000)"
+#			help
+#				Hiermit kann das Basissystem um einen Treiber fuer den SCP1000 Sensor erweitert werden.
+#			
+#		config accel
+#			bool "Beschleunigung"
+#			help
+#				Hiermit kann das Basissystem um einen Treiber fuer den Beschleunigungs Sensor erweitert werden.
+#
+#	endmenu
+		
+	menu "Debughilfen"
+		depends on basisystem
+	
+		config debug_panic
+			bool "Panik-Anzeige auf dem Display"
+			help
+				Zeigt auf dem Display der eZ430 Chronos Watch einen Fehlercode an,
+				wenn das AOStuBS Betriebssystem abstuerzt.
+			
+#		config debug_irq
+#			bool "Unerwartete Interrupts auf Display melden"
+#			help
+#				Zeigt die Nummer eines nicht vorgesehenen Interrupts an.
+			
+		config debug_guard
+			bool "Guard enter/leave-Aufrufe pruefen"
+			default y
+			help
+				Zeigt an, ob die Interruptsynchronisation falsch benutzt wird.
+	
+	endmenu
+
+endmenu
+
